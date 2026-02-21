@@ -220,6 +220,63 @@ body{background:var(--bg);color:var(--text);font-family:'Outfit',sans-serif;min-
 .pc-value{font-family:'DM Serif Display',serif;font-size:22px;color:var(--accent)}
 .pc-sub{font-size:11px;color:var(--text2);margin-top:2px}
 
+/* Results Table */
+.results-panel{
+  background:var(--surface);border:1px solid var(--border);border-radius:14px;
+  padding:24px 28px;margin-top:24px;
+}
+.rp-header{display:flex;justify-content:space-between;align-items:center;margin-bottom:16px}
+.rp-title{font-size:10px;font-weight:700;letter-spacing:1.5px;text-transform:uppercase;color:var(--text3)}
+.rp-stats{display:flex;gap:16px}
+.rp-stat{font-size:12px;color:var(--text2)}
+.rp-stat strong{color:var(--text);font-weight:600}
+
+.results-table{width:100%;border-collapse:collapse}
+.results-table thead{background:var(--surface2)}
+.results-table th{
+  padding:12px 14px;font-size:10px;font-weight:700;letter-spacing:0.8px;
+  text-transform:uppercase;color:var(--text3);text-align:left;
+  border-bottom:2px solid var(--border);
+}
+.results-table th.num{text-align:right}
+.results-table tbody tr{transition:background 0.15s}
+.results-table tbody tr:hover{background:var(--accent-glow)}
+.results-table tbody tr:not(:last-child){border-bottom:1px solid var(--border)}
+.results-table td{padding:12px 14px;font-size:13px;color:var(--text)}
+.results-table td.num{text-align:right;font-family:'Outfit',sans-serif;font-weight:600;font-variant-numeric:tabular-nums}
+.results-table td.player-name{font-weight:600}
+.results-table td.points{color:var(--accent);font-weight:700}
+
+.venue-badge{
+  display:inline-block;padding:3px 8px;border-radius:4px;
+  font-size:10px;font-weight:600;letter-spacing:0.3px;text-transform:uppercase;
+}
+.venue-badge.home{background:var(--green-dim);color:var(--green)}
+.venue-badge.away{background:var(--blue-dim);color:var(--blue)}
+
+/* Filter Panel */
+.filter-panel{
+  background:var(--surface);border:1px solid var(--border);border-radius:14px;
+  padding:18px 24px;margin-bottom:24px;
+}
+.filter-row{display:flex;align-items:center;gap:14px}
+.filter-label{font-size:13px;font-weight:600;color:var(--text)}
+.filter-select{
+  background:var(--surface2);border:1px solid var(--border);border-radius:8px;
+  padding:10px 14px;font-family:'Outfit',sans-serif;font-size:13px;font-weight:500;
+  color:var(--text);cursor:pointer;min-width:140px;outline:none;
+}
+.filter-select:hover{border-color:var(--border2)}
+.filter-select:focus{border-color:var(--accent)}
+
+.result-badge{
+  display:inline-block;padding:3px 8px;border-radius:4px;
+  font-size:10px;font-weight:600;letter-spacing:0.3px;text-transform:uppercase;
+}
+.result-badge.win{background:var(--green-dim);color:var(--green)}
+.result-badge.loss{background:var(--red-dim);color:var(--red)}
+.result-badge.draw{background:var(--surface2);color:var(--text2)}
+
 @media(max-width:768px){
   .header{padding:16px 18px 14px}
   .hdr-inner{flex-direction:column;align-items:flex-start;gap:12px}
@@ -234,6 +291,10 @@ body{background:var(--bg);color:var(--text);font-family:'Outfit',sans-serif;min-
   .weights-panel{padding:18px 16px}
   .weights-grid{grid-template-columns:1fr}
   .total-weight{flex-wrap:wrap;gap:12px}
+  .results-panel{padding:18px 16px;overflow-x:auto}
+  .results-table{min-width:700px}
+  .results-table th,.results-table td{padding:10px 10px;font-size:12px}
+  .rp-header{flex-direction:column;align-items:flex-start;gap:10px}
 }
 </style>
 </head>
@@ -470,11 +531,6 @@ body{background:var(--bg);color:var(--text);font-family:'Outfit',sans-serif;min-
           <input type="number" class="wi-input" id="haAway" min="0" max="100" placeholder="0" oninput="updateSub('ha','away')">
           <span class="wi-unit">%</span>
         </div>
-        <div class="weight-item disabled" id="haNeutralItem">
-          <span class="wi-label">Neutral</span>
-          <input type="number" class="wi-input" id="haNeutral" min="0" max="100" placeholder="0" oninput="updateSub('ha','neutral')">
-          <span class="wi-unit">%</span>
-        </div>
       </div>
 
       <!-- Match Result -->
@@ -499,14 +555,14 @@ body{background:var(--bg);color:var(--text);font-family:'Outfit',sans-serif;min-
           <input type="number" class="wi-input" id="resultWin" min="0" max="100" placeholder="0" oninput="updateSub('result','win')">
           <span class="wi-unit">%</span>
         </div>
-        <div class="weight-item disabled" id="resultLossItem">
-          <span class="wi-label">Loss</span>
-          <input type="number" class="wi-input" id="resultLoss" min="0" max="100" placeholder="0" oninput="updateSub('result','loss')">
-          <span class="wi-unit">%</span>
-        </div>
         <div class="weight-item disabled" id="resultDrawItem">
           <span class="wi-label">Draw</span>
           <input type="number" class="wi-input" id="resultDraw" min="0" max="100" placeholder="0" oninput="updateSub('result','draw')">
+          <span class="wi-unit">%</span>
+        </div>
+        <div class="weight-item disabled" id="resultLossItem">
+          <span class="wi-label">Loss</span>
+          <input type="number" class="wi-input" id="resultLoss" min="0" max="100" placeholder="0" oninput="updateSub('result','loss')">
           <span class="wi-unit">%</span>
         </div>
       </div>
@@ -523,6 +579,21 @@ body{background:var(--bg);color:var(--text);font-family:'Outfit',sans-serif;min-
     <div class="active-weights" id="activeTags"></div>
   </div>
 
+  <!-- Player Filter -->
+  <div class="filter-panel">
+    <div class="filter-row">
+      <label class="filter-label">Players</label>
+      <select class="filter-select" id="playerFilter" onchange="updateResultsTable()">
+        <option value="all">All</option>
+        <option value="10" selected>Top 10</option>
+        <option value="20">Top 20</option>
+        <option value="25">Top 25</option>
+        <option value="50">Top 50</option>
+        <option value="100">Top 100</option>
+      </select>
+    </div>
+  </div>
+
   <div class="preview-panel">
     <div class="pp-title">Configuration Preview</div>
     <div class="pp-empty" id="previewEmpty">
@@ -530,6 +601,28 @@ body{background:var(--bg);color:var(--text);font-family:'Outfit',sans-serif;min-
       <div>Set weights above to configure your simulation</div>
     </div>
     <div class="preview-grid" id="previewContent" style="display:none"></div>
+  </div>
+
+  <!-- Results Table -->
+  <div class="results-panel">
+    <div class="rp-header">
+      <span class="rp-title">Simulation Results</span>
+      <div class="rp-stats">
+        <span class="rp-stat">Players: <strong id="playerCount">10</strong></span>
+        <span class="rp-stat">Total Points: <strong id="totalPoints">500</strong></span>
+      </div>
+    </div>
+    <table class="results-table">
+      <thead>
+        <tr>
+          <th style="width:33%">Player</th>
+          <th class="num" style="width:34%">Points</th>
+          <th class="num" style="width:33%">Rank</th>
+        </tr>
+      </thead>
+      <tbody id="resultsBody">
+      </tbody>
+    </table>
   </div>
 </main>
 
@@ -540,7 +633,7 @@ const config = {
   sr: { total: 0, subs: {}, subKeys: [] }, // No subs, total applies directly
   runs: { total: 0, subs: { '1': 0, '2': 0, '3': 0, '4': 0 }, subKeys: ['1','2','3','4'] },
   impact: { total: 0, subs: { '1': 0, '2': 0, '3': 0, '4': 0 }, subKeys: ['1','2','3','4'], auto: true },
-  ha: { total: 0, subs: { home: 0, away: 0, neutral: 0 }, subKeys: ['home','away','neutral'] },
+  ha: { total: 0, subs: { home: 0, away: 0 }, subKeys: ['home','away'] },
   result: { total: 0, subs: { win: 0, loss: 0, draw: 0 }, subKeys: ['win','loss','draw'] }
 };
 
@@ -549,21 +642,21 @@ const labels = {
   sr: { name: 'Strike Rate' },
   runs: { name: 'Runs', '1': '1st Innings', '2': '2nd Innings', '3': '3rd Innings', '4': '4th Innings' },
   impact: { name: 'Impact', '1': '1st Innings', '2': '2nd Innings', '3': '3rd Innings', '4': '4th Innings' },
-  ha: { name: 'Venue', home: 'Home', away: 'Away', neutral: 'Neutral' },
+  ha: { name: 'Venue', home: 'Home', away: 'Away' },
   result: { name: 'Result', win: 'Win', loss: 'Loss', draw: 'Draw' }
 };
 
 const inputMap = {
   'avg-1': 'avg1', 'avg-2': 'avg2', 'avg-3': 'avg3', 'avg-4': 'avg4',
   'runs-1': 'runs1', 'runs-2': 'runs2', 'runs-3': 'runs3', 'runs-4': 'runs4',
-  'ha-home': 'haHome', 'ha-away': 'haAway', 'ha-neutral': 'haNeutral',
+  'ha-home': 'haHome', 'ha-away': 'haAway',
   'result-win': 'resultWin', 'result-loss': 'resultLoss', 'result-draw': 'resultDraw'
 };
 
 const itemMap = {
   'avg-1': 'avg1Item', 'avg-2': 'avg2Item', 'avg-3': 'avg3Item', 'avg-4': 'avg4Item',
   'runs-1': 'runs1Item', 'runs-2': 'runs2Item', 'runs-3': 'runs3Item', 'runs-4': 'runs4Item',
-  'ha-home': 'haHomeItem', 'ha-away': 'haAwayItem', 'ha-neutral': 'haNeutralItem',
+  'ha-home': 'haHomeItem', 'ha-away': 'haAwayItem',
   'result-win': 'resultWinItem', 'result-loss': 'resultLossItem', 'result-draw': 'resultDrawItem'
 };
 
@@ -722,6 +815,11 @@ function updateGrandTotal() {
     status.textContent = (total - 100) + '% over limit';
     status.className = 'tw-status invalid';
   }
+  
+  // Update results table with new weights
+  if (typeof updateResultsTable === 'function') {
+    updateResultsTable();
+  }
 }
 
 function updateTags() {
@@ -872,8 +970,3913 @@ function applyWeights() {
   alert('Weights applied successfully!\n\nConfiguration saved. Ready to run simulation.');
 }
 
+// Player data from actual Test cricket database
+const playerData = [
+  {
+    "name": "SR Tendulkar",
+    "runs": 15921,
+    "avg": 53.79,
+    "sr": 54.06,
+    "pctTotal": 2.0,
+    "venue": "away",
+    "result": "win",
+    "innings": {
+      "runs": {
+        "1": 5608,
+        "2": 5692,
+        "3": 2996,
+        "4": 1625
+      },
+      "avg": {
+        "1": 65.98,
+        "2": 53.7,
+        "3": 46.09,
+        "4": 16.58
+      },
+      "teamRuns": {
+        "1": 34113,
+        "2": 40570,
+        "3": 20168,
+        "4": 12547
+      }
+    },
+    "venueRuns": {
+      "home": 7216,
+      "away": 8705
+    },
+    "resultRuns": {
+      "win": 5946,
+      "draw": 5887,
+      "loss": 4088
+    }
+  },
+  {
+    "name": "JE Root",
+    "runs": 13943,
+    "avg": 51.07,
+    "sr": 57.52,
+    "pctTotal": 1.8,
+    "venue": "home",
+    "result": "win",
+    "innings": {
+      "runs": {
+        "1": 4321,
+        "2": 4190,
+        "3": 3530,
+        "4": 1902
+      },
+      "avg": {
+        "1": 52.7,
+        "2": 59.01,
+        "3": 46.45,
+        "4": 26.79
+      },
+      "teamRuns": {
+        "1": 29653,
+        "2": 24463,
+        "3": 20984,
+        "4": 12732
+      }
+    },
+    "venueRuns": {
+      "home": 7329,
+      "away": 6614
+    },
+    "resultRuns": {
+      "win": 7239,
+      "draw": 2351,
+      "loss": 4353
+    }
+  },
+  {
+    "name": "RT Ponting",
+    "runs": 13378,
+    "avg": 51.85,
+    "sr": 58.72,
+    "pctTotal": 1.7,
+    "venue": "home",
+    "result": "win",
+    "innings": {
+      "runs": {
+        "1": 5403,
+        "2": 3969,
+        "3": 2544,
+        "4": 1462
+      },
+      "avg": {
+        "1": 61.4,
+        "2": 52.92,
+        "3": 37.41,
+        "4": 19.76
+      },
+      "teamRuns": {
+        "1": 36858,
+        "2": 30535,
+        "3": 21467,
+        "4": 9600
+      }
+    },
+    "venueRuns": {
+      "home": 7578,
+      "away": 5800
+    },
+    "resultRuns": {
+      "win": 9157,
+      "draw": 2185,
+      "loss": 2036
+    }
+  },
+  {
+    "name": "JH Kallis",
+    "runs": 13289,
+    "avg": 55.37,
+    "sr": 45.98,
+    "pctTotal": 1.7,
+    "venue": "home",
+    "result": "win",
+    "innings": {
+      "runs": {
+        "1": 4317,
+        "2": 4246,
+        "3": 3394,
+        "4": 1332
+      },
+      "avg": {
+        "1": 56.8,
+        "2": 53.08,
+        "3": 61.71,
+        "4": 16.86
+      },
+      "teamRuns": {
+        "1": 30327,
+        "2": 29609,
+        "3": 18527,
+        "4": 10311
+      }
+    },
+    "venueRuns": {
+      "home": 7035,
+      "away": 6254
+    },
+    "resultRuns": {
+      "win": 6379,
+      "draw": 4344,
+      "loss": 2566
+    }
+  },
+  {
+    "name": "R Dravid",
+    "runs": 13288,
+    "avg": 52.31,
+    "sr": 42.51,
+    "pctTotal": 1.7,
+    "venue": "away",
+    "result": "draw",
+    "innings": {
+      "runs": {
+        "1": 4121,
+        "2": 4984,
+        "3": 2608,
+        "4": 1575
+      },
+      "avg": {
+        "1": 57.24,
+        "2": 60.78,
+        "3": 41.4,
+        "4": 22.18
+      },
+      "teamRuns": {
+        "1": 27268,
+        "2": 33102,
+        "3": 18817,
+        "4": 10815
+      }
+    },
+    "venueRuns": {
+      "home": 5598,
+      "away": 7690
+    },
+    "resultRuns": {
+      "win": 5131,
+      "draw": 5379,
+      "loss": 2778
+    }
+  },
+  {
+    "name": "AN Cook",
+    "runs": 12472,
+    "avg": 45.35,
+    "sr": 46.95,
+    "pctTotal": 1.6,
+    "venue": "home",
+    "result": "win",
+    "innings": {
+      "runs": {
+        "1": 3617,
+        "2": 3908,
+        "3": 3336,
+        "4": 1611
+      },
+      "avg": {
+        "1": 41.1,
+        "2": 55.04,
+        "3": 46.99,
+        "4": 21.77
+      },
+      "teamRuns": {
+        "1": 32719,
+        "2": 24121,
+        "3": 21544,
+        "4": 9861
+      }
+    },
+    "venueRuns": {
+      "home": 6568,
+      "away": 5904
+    },
+    "resultRuns": {
+      "win": 5689,
+      "draw": 3562,
+      "loss": 3221
+    }
+  },
+  {
+    "name": "KC Sangakkara",
+    "runs": 12400,
+    "avg": 57.41,
+    "sr": 54.19,
+    "pctTotal": 1.6,
+    "venue": "home",
+    "result": "win",
+    "innings": {
+      "runs": {
+        "1": 3633,
+        "2": 4198,
+        "3": 3406,
+        "4": 1163
+      },
+      "avg": {
+        "1": 55.05,
+        "2": 66.63,
+        "3": 55.84,
+        "4": 20.05
+      },
+      "teamRuns": {
+        "1": 23292,
+        "2": 24866,
+        "3": 17707,
+        "4": 6914
+      }
+    },
+    "venueRuns": {
+      "home": 6830,
+      "away": 5570
+    },
+    "resultRuns": {
+      "win": 5449,
+      "draw": 4013,
+      "loss": 2938
+    }
+  },
+  {
+    "name": "BC Lara",
+    "runs": 11953,
+    "avg": 52.89,
+    "sr": 60.51,
+    "pctTotal": 1.5,
+    "venue": "home",
+    "result": "loss",
+    "innings": {
+      "runs": {
+        "1": 4000,
+        "2": 4249,
+        "3": 2264,
+        "4": 1440
+      },
+      "avg": {
+        "1": 70.18,
+        "2": 58.21,
+        "3": 39.72,
+        "4": 22.86
+      },
+      "teamRuns": {
+        "1": 18111,
+        "2": 23053,
+        "3": 12747,
+        "4": 9417
+      }
+    },
+    "venueRuns": {
+      "home": 6217,
+      "away": 5736
+    },
+    "resultRuns": {
+      "win": 2929,
+      "draw": 3708,
+      "loss": 5316
+    }
+  },
+  {
+    "name": "S Chanderpaul",
+    "runs": 11867,
+    "avg": 51.37,
+    "sr": 43.31,
+    "pctTotal": 1.5,
+    "venue": "home",
+    "result": "loss",
+    "innings": {
+      "runs": {
+        "1": 3575,
+        "2": 4356,
+        "3": 2356,
+        "4": 1580
+      },
+      "avg": {
+        "1": 68.75,
+        "2": 50.65,
+        "3": 39.93,
+        "4": 21.94
+      },
+      "teamRuns": {
+        "1": 21020,
+        "2": 31244,
+        "3": 15964,
+        "4": 11815
+      }
+    },
+    "venueRuns": {
+      "home": 6187,
+      "away": 5680
+    },
+    "resultRuns": {
+      "win": 2955,
+      "draw": 3542,
+      "loss": 5370
+    }
+  },
+  {
+    "name": "M Jayawardene",
+    "runs": 11814,
+    "avg": 49.85,
+    "sr": 51.46,
+    "pctTotal": 1.5,
+    "venue": "home",
+    "result": "win",
+    "innings": {
+      "runs": {
+        "1": 3886,
+        "2": 4833,
+        "3": 1999,
+        "4": 1096
+      },
+      "avg": {
+        "1": 53.23,
+        "2": 66.21,
+        "3": 28.97,
+        "4": 17.68
+      },
+      "teamRuns": {
+        "1": 24787,
+        "2": 28546,
+        "3": 18513,
+        "4": 7387
+      }
+    },
+    "venueRuns": {
+      "home": 7167,
+      "away": 4647
+    },
+    "resultRuns": {
+      "win": 5173,
+      "draw": 3935,
+      "loss": 2706
+    }
+  },
+  {
+    "name": "AR Border",
+    "runs": 11174,
+    "avg": 50.56,
+    "sr": 41.12,
+    "pctTotal": 1.4,
+    "venue": "home",
+    "result": "draw",
+    "innings": {
+      "runs": {
+        "1": 4056,
+        "2": 2747,
+        "3": 3511,
+        "4": 860
+      },
+      "avg": {
+        "1": 51.34,
+        "2": 42.92,
+        "3": 58.52,
+        "4": 14.58
+      },
+      "teamRuns": {
+        "1": 30668,
+        "2": 21399,
+        "3": 20360,
+        "4": 7701
+      }
+    },
+    "venueRuns": {
+      "home": 5743,
+      "away": 5431
+    },
+    "resultRuns": {
+      "win": 3186,
+      "draw": 5217,
+      "loss": 2771
+    }
+  },
+  {
+    "name": "SR Waugh",
+    "runs": 10927,
+    "avg": 51.06,
+    "sr": 48.65,
+    "pctTotal": 1.4,
+    "venue": "home",
+    "result": "win",
+    "innings": {
+      "runs": {
+        "1": 4855,
+        "2": 3703,
+        "3": 1756,
+        "4": 613
+      },
+      "avg": {
+        "1": 61.46,
+        "2": 57.86,
+        "3": 27.87,
+        "4": 7.76
+      },
+      "teamRuns": {
+        "1": 36821,
+        "2": 27048,
+        "3": 18693,
+        "4": 8196
+      }
+    },
+    "venueRuns": {
+      "home": 5710,
+      "away": 5217
+    },
+    "resultRuns": {
+      "win": 6460,
+      "draw": 2087,
+      "loss": 2380
+    }
+  },
+  {
+    "name": "SPD Smith",
+    "runs": 10763,
+    "avg": 56.06,
+    "sr": 53.91,
+    "pctTotal": 1.4,
+    "venue": "away",
+    "result": "win",
+    "innings": {
+      "runs": {
+        "1": 5283,
+        "2": 2507,
+        "3": 2150,
+        "4": 823
+      },
+      "avg": {
+        "1": 81.28,
+        "2": 51.16,
+        "3": 38.39,
+        "4": 17.89
+      },
+      "teamRuns": {
+        "1": 27796,
+        "2": 16755,
+        "3": 15378,
+        "4": 6874
+      }
+    },
+    "venueRuns": {
+      "home": 5301,
+      "away": 5462
+    },
+    "resultRuns": {
+      "win": 6534,
+      "draw": 2048,
+      "loss": 2181
+    }
+  },
+  {
+    "name": "SM Gavaskar",
+    "runs": 10122,
+    "avg": 51.12,
+    "sr": 44.97,
+    "pctTotal": 1.3,
+    "venue": "home",
+    "result": "draw",
+    "innings": {
+      "runs": {
+        "1": 2546,
+        "2": 3613,
+        "3": 2565,
+        "4": 1398
+      },
+      "avg": {
+        "1": 41.74,
+        "2": 59.23,
+        "3": 45.8,
+        "4": 30.39
+      },
+      "teamRuns": {
+        "1": 19770,
+        "2": 21262,
+        "3": 14120,
+        "4": 6022
+      }
+    },
+    "venueRuns": {
+      "home": 5067,
+      "away": 5055
+    },
+    "resultRuns": {
+      "win": 1671,
+      "draw": 6137,
+      "loss": 2314
+    }
+  },
+  {
+    "name": "Younis Khan",
+    "runs": 10099,
+    "avg": 52.06,
+    "sr": 52.12,
+    "pctTotal": 1.3,
+    "venue": "away",
+    "result": "win",
+    "innings": {
+      "runs": {
+        "1": 2918,
+        "2": 3282,
+        "3": 2434,
+        "4": 1465
+      },
+      "avg": {
+        "1": 53.05,
+        "2": 54.7,
+        "3": 45.92,
+        "4": 32.56
+      },
+      "teamRuns": {
+        "1": 18536,
+        "2": 21170,
+        "3": 16408,
+        "4": 8464
+      }
+    },
+    "venueRuns": {
+      "home": 1898,
+      "away": 8201
+    },
+    "resultRuns": {
+      "win": 4910,
+      "draw": 2294,
+      "loss": 2895
+    }
+  },
+  {
+    "name": "KS Williamson",
+    "runs": 9461,
+    "avg": 54.69,
+    "sr": 51.99,
+    "pctTotal": 1.2,
+    "venue": "home",
+    "result": "win",
+    "innings": {
+      "runs": {
+        "1": 2629,
+        "2": 3264,
+        "3": 2469,
+        "4": 1099
+      },
+      "avg": {
+        "1": 49.6,
+        "2": 64.0,
+        "3": 51.44,
+        "4": 24.98
+      },
+      "teamRuns": {
+        "1": 17765,
+        "2": 18515,
+        "3": 15192,
+        "4": 5834
+      }
+    },
+    "venueRuns": {
+      "home": 5327,
+      "away": 4134
+    },
+    "resultRuns": {
+      "win": 5318,
+      "draw": 2073,
+      "loss": 2070
+    }
+  },
+  {
+    "name": "HM Amla",
+    "runs": 9282,
+    "avg": 46.64,
+    "sr": 49.97,
+    "pctTotal": 1.2,
+    "venue": "home",
+    "result": "win",
+    "innings": {
+      "runs": {
+        "1": 3158,
+        "2": 2532,
+        "3": 2292,
+        "4": 1300
+      },
+      "avg": {
+        "1": 50.13,
+        "2": 43.66,
+        "3": 49.83,
+        "4": 21.31
+      },
+      "teamRuns": {
+        "1": 23228,
+        "2": 18591,
+        "3": 14336,
+        "4": 8810
+      }
+    },
+    "venueRuns": {
+      "home": 5135,
+      "away": 4147
+    },
+    "resultRuns": {
+      "win": 5251,
+      "draw": 2104,
+      "loss": 1927
+    }
+  },
+  {
+    "name": "GC Smith",
+    "runs": 9265,
+    "avg": 48.26,
+    "sr": 59.68,
+    "pctTotal": 1.2,
+    "venue": "away",
+    "result": "win",
+    "innings": {
+      "runs": {
+        "1": 2877,
+        "2": 2831,
+        "3": 1946,
+        "4": 1611
+      },
+      "avg": {
+        "1": 50.47,
+        "2": 48.81,
+        "3": 41.4,
+        "4": 27.31
+      },
+      "teamRuns": {
+        "1": 22371,
+        "2": 21016,
+        "3": 13568,
+        "4": 8686
+      }
+    },
+    "venueRuns": {
+      "home": 3986,
+      "away": 5279
+    },
+    "resultRuns": {
+      "win": 5214,
+      "draw": 2618,
+      "loss": 1433
+    }
+  },
+  {
+    "name": "V Kohli",
+    "runs": 9230,
+    "avg": 46.85,
+    "sr": 55.58,
+    "pctTotal": 1.2,
+    "venue": "away",
+    "result": "win",
+    "innings": {
+      "runs": {
+        "1": 3106,
+        "2": 3151,
+        "3": 1871,
+        "4": 1102
+      },
+      "avg": {
+        "1": 45.68,
+        "2": 59.45,
+        "3": 35.3,
+        "4": 19.33
+      },
+      "teamRuns": {
+        "1": 23230,
+        "2": 19498,
+        "3": 14446,
+        "4": 6027
+      }
+    },
+    "venueRuns": {
+      "home": 4336,
+      "away": 4894
+    },
+    "resultRuns": {
+      "win": 4746,
+      "draw": 1941,
+      "loss": 2543
+    }
+  },
+  {
+    "name": "GA Gooch",
+    "runs": 8900,
+    "avg": 42.58,
+    "sr": 49.27,
+    "pctTotal": 1.1,
+    "venue": "home",
+    "result": "draw",
+    "innings": {
+      "runs": {
+        "1": 3184,
+        "2": 1818,
+        "3": 2777,
+        "4": 1121
+      },
+      "avg": {
+        "1": 46.14,
+        "2": 37.1,
+        "3": 42.08,
+        "4": 26.69
+      },
+      "teamRuns": {
+        "1": 20948,
+        "2": 14128,
+        "3": 17218,
+        "4": 4923
+      }
+    },
+    "venueRuns": {
+      "home": 5917,
+      "away": 2983
+    },
+    "resultRuns": {
+      "win": 2950,
+      "draw": 3527,
+      "loss": 2423
+    }
+  },
+  {
+    "name": "Javed Miandad",
+    "runs": 8832,
+    "avg": 52.57,
+    "sr": 47.48,
+    "pctTotal": 1.1,
+    "venue": "home",
+    "result": "draw",
+    "innings": {
+      "runs": {
+        "1": 3730,
+        "2": 2774,
+        "3": 1512,
+        "4": 816
+      },
+      "avg": {
+        "1": 69.07,
+        "2": 44.74,
+        "3": 36.0,
+        "4": 14.07
+      },
+      "teamRuns": {
+        "1": 19816,
+        "2": 20720,
+        "3": 11105,
+        "4": 4563
+      }
+    },
+    "venueRuns": {
+      "home": 4481,
+      "away": 4351
+    },
+    "resultRuns": {
+      "win": 2923,
+      "draw": 4570,
+      "loss": 1339
+    }
+  },
+  {
+    "name": "Inzamam-ul-Haq",
+    "runs": 8830,
+    "avg": 49.61,
+    "sr": 54.03,
+    "pctTotal": 1.1,
+    "venue": "away",
+    "result": "win",
+    "innings": {
+      "runs": {
+        "1": 2581,
+        "2": 3055,
+        "3": 2327,
+        "4": 867
+      },
+      "avg": {
+        "1": 51.62,
+        "2": 49.27,
+        "3": 48.48,
+        "4": 16.36
+      },
+      "teamRuns": {
+        "1": 17008,
+        "2": 22560,
+        "3": 15047,
+        "4": 7186
+      }
+    },
+    "venueRuns": {
+      "home": 3709,
+      "away": 5121
+    },
+    "resultRuns": {
+      "win": 4690,
+      "draw": 1984,
+      "loss": 2156
+    }
+  },
+  {
+    "name": "DA Warner",
+    "runs": 8786,
+    "avg": 44.6,
+    "sr": 70.19,
+    "pctTotal": 1.1,
+    "venue": "home",
+    "result": "win",
+    "innings": {
+      "runs": {
+        "1": 3250,
+        "2": 2097,
+        "3": 2231,
+        "4": 1208
+      },
+      "avg": {
+        "1": 50.0,
+        "2": 46.6,
+        "3": 37.81,
+        "4": 26.84
+      },
+      "teamRuns": {
+        "1": 26675,
+        "2": 16502,
+        "3": 14158,
+        "4": 5790
+      }
+    },
+    "venueRuns": {
+      "home": 5438,
+      "away": 3348
+    },
+    "resultRuns": {
+      "win": 5489,
+      "draw": 1280,
+      "loss": 2017
+    }
+  },
+  {
+    "name": "VVS Laxman",
+    "runs": 8781,
+    "avg": 45.97,
+    "sr": 49.37,
+    "pctTotal": 1.1,
+    "venue": "away",
+    "result": "win",
+    "innings": {
+      "runs": {
+        "1": 2158,
+        "2": 3152,
+        "3": 2376,
+        "4": 1095
+      },
+      "avg": {
+        "1": 39.24,
+        "2": 48.49,
+        "3": 49.5,
+        "4": 17.95
+      },
+      "teamRuns": {
+        "1": 21703,
+        "2": 28078,
+        "3": 16085,
+        "4": 8854
+      }
+    },
+    "venueRuns": {
+      "home": 3767,
+      "away": 5014
+    },
+    "resultRuns": {
+      "win": 3410,
+      "draw": 3380,
+      "loss": 1991
+    }
+  },
+  {
+    "name": "AB de Villiers",
+    "runs": 8765,
+    "avg": 50.66,
+    "sr": 54.52,
+    "pctTotal": 1.1,
+    "venue": "home",
+    "result": "win",
+    "innings": {
+      "runs": {
+        "1": 2730,
+        "2": 3274,
+        "3": 1620,
+        "4": 1141
+      },
+      "avg": {
+        "1": 53.53,
+        "2": 59.53,
+        "3": 39.51,
+        "4": 18.7
+      },
+      "teamRuns": {
+        "1": 19988,
+        "2": 20004,
+        "3": 12786,
+        "4": 8755
+      }
+    },
+    "venueRuns": {
+      "home": 4788,
+      "away": 3977
+    },
+    "resultRuns": {
+      "win": 4631,
+      "draw": 2053,
+      "loss": 2081
+    }
+  },
+  {
+    "name": "MJ Clarke",
+    "runs": 8643,
+    "avg": 49.11,
+    "sr": 55.92,
+    "pctTotal": 1.1,
+    "venue": "home",
+    "result": "win",
+    "innings": {
+      "runs": {
+        "1": 3601,
+        "2": 2385,
+        "3": 1987,
+        "4": 670
+      },
+      "avg": {
+        "1": 57.16,
+        "2": 53.0,
+        "3": 38.96,
+        "4": 13.67
+      },
+      "teamRuns": {
+        "1": 25273,
+        "2": 17892,
+        "3": 17482,
+        "4": 6960
+      }
+    },
+    "venueRuns": {
+      "home": 4654,
+      "away": 3989
+    },
+    "resultRuns": {
+      "win": 4955,
+      "draw": 1816,
+      "loss": 1872
+    }
+  },
+  {
+    "name": "ML Hayden",
+    "runs": 8626,
+    "avg": 50.74,
+    "sr": 60.12,
+    "pctTotal": 1.1,
+    "venue": "home",
+    "result": "win",
+    "innings": {
+      "runs": {
+        "1": 2858,
+        "2": 2295,
+        "3": 2185,
+        "4": 1288
+      },
+      "avg": {
+        "1": 54.96,
+        "2": 45.0,
+        "3": 53.29,
+        "4": 27.4
+      },
+      "teamRuns": {
+        "1": 21623,
+        "2": 20629,
+        "3": 12007,
+        "4": 6497
+      }
+    },
+    "venueRuns": {
+      "home": 5211,
+      "away": 3415
+    },
+    "resultRuns": {
+      "win": 6155,
+      "draw": 1380,
+      "loss": 1091
+    }
+  },
+  {
+    "name": "V Sehwag",
+    "runs": 8586,
+    "avg": 49.34,
+    "sr": 82.23,
+    "pctTotal": 1.1,
+    "venue": "home",
+    "result": "win",
+    "innings": {
+      "runs": {
+        "1": 2615,
+        "2": 3823,
+        "3": 1247,
+        "4": 901
+      },
+      "avg": {
+        "1": 58.11,
+        "2": 65.91,
+        "3": 29.69,
+        "4": 16.38
+      },
+      "teamRuns": {
+        "1": 17093,
+        "2": 22930,
+        "3": 11981,
+        "4": 6485
+      }
+    },
+    "venueRuns": {
+      "home": 4656,
+      "away": 3930
+    },
+    "resultRuns": {
+      "win": 3498,
+      "draw": 3164,
+      "loss": 1924
+    }
+  },
+  {
+    "name": "IVA Richards",
+    "runs": 8540,
+    "avg": 50.24,
+    "sr": 65.3,
+    "pctTotal": 1.1,
+    "venue": "away",
+    "result": "win",
+    "innings": {
+      "runs": {
+        "1": 2531,
+        "2": 3514,
+        "3": 1584,
+        "4": 911
+      },
+      "avg": {
+        "1": 53.85,
+        "2": 48.81,
+        "3": 44.0,
+        "4": 12.48
+      },
+      "teamRuns": {
+        "1": 16644,
+        "2": 24977,
+        "3": 11164,
+        "4": 6787
+      }
+    },
+    "venueRuns": {
+      "home": 3136,
+      "away": 5404
+    },
+    "resultRuns": {
+      "win": 4300,
+      "draw": 3043,
+      "loss": 1197
+    }
+  },
+  {
+    "name": "AJ Stewart",
+    "runs": 8465,
+    "avg": 39.56,
+    "sr": 48.68,
+    "pctTotal": 1.1,
+    "venue": "home",
+    "result": "loss",
+    "innings": {
+      "runs": {
+        "1": 2555,
+        "2": 2448,
+        "3": 2326,
+        "4": 1136
+      },
+      "avg": {
+        "1": 39.92,
+        "2": 38.86,
+        "3": 40.81,
+        "4": 19.93
+      },
+      "teamRuns": {
+        "1": 19653,
+        "2": 20987,
+        "3": 15775,
+        "4": 8126
+      }
+    },
+    "venueRuns": {
+      "home": 4652,
+      "away": 3813
+    },
+    "resultRuns": {
+      "win": 2517,
+      "draw": 2953,
+      "loss": 2995
+    }
+  },
+  {
+    "name": "DI Gower",
+    "runs": 8231,
+    "avg": 44.25,
+    "sr": 50.6,
+    "pctTotal": 1.1,
+    "venue": "home",
+    "result": "draw",
+    "innings": {
+      "runs": {
+        "1": 2675,
+        "2": 2636,
+        "3": 2287,
+        "4": 633
+      },
+      "avg": {
+        "1": 43.15,
+        "2": 50.69,
+        "3": 42.35,
+        "4": 15.07
+      },
+      "teamRuns": {
+        "1": 19767,
+        "2": 16710,
+        "3": 15520,
+        "4": 4788
+      }
+    },
+    "venueRuns": {
+      "home": 4454,
+      "away": 3777
+    },
+    "resultRuns": {
+      "win": 2302,
+      "draw": 3348,
+      "loss": 2581
+    }
+  },
+  {
+    "name": "AD Mathews",
+    "runs": 8214,
+    "avg": 44.4,
+    "sr": 48.4,
+    "pctTotal": 1.1,
+    "venue": "home",
+    "result": "loss",
+    "innings": {
+      "runs": {
+        "1": 2093,
+        "2": 2662,
+        "3": 2363,
+        "4": 1096
+      },
+      "avg": {
+        "1": 36.72,
+        "2": 47.54,
+        "3": 45.44,
+        "4": 25.49
+      },
+      "teamRuns": {
+        "1": 19233,
+        "2": 18303,
+        "3": 16967,
+        "4": 8514
+      }
+    },
+    "venueRuns": {
+      "home": 4370,
+      "away": 3844
+    },
+    "resultRuns": {
+      "win": 2729,
+      "draw": 1872,
+      "loss": 3613
+    }
+  },
+  {
+    "name": "KP Pietersen",
+    "runs": 8181,
+    "avg": 47.29,
+    "sr": 61.73,
+    "pctTotal": 1.1,
+    "venue": "home",
+    "result": "win",
+    "innings": {
+      "runs": {
+        "1": 2935,
+        "2": 2521,
+        "3": 1708,
+        "4": 1017
+      },
+      "avg": {
+        "1": 51.49,
+        "2": 54.8,
+        "3": 37.96,
+        "4": 20.34
+      },
+      "teamRuns": {
+        "1": 21711,
+        "2": 15646,
+        "3": 13276,
+        "4": 6686
+      }
+    },
+    "venueRuns": {
+      "home": 4537,
+      "away": 3644
+    },
+    "resultRuns": {
+      "win": 3655,
+      "draw": 2831,
+      "loss": 1695
+    }
+  },
+  {
+    "name": "G Boycott",
+    "runs": 8114,
+    "avg": 47.73,
+    "sr": 36.32,
+    "pctTotal": 1.0,
+    "venue": "home",
+    "result": "draw",
+    "innings": {
+      "runs": {
+        "1": 2878,
+        "2": 1917,
+        "3": 2085,
+        "4": 1234
+      },
+      "avg": {
+        "1": 47.97,
+        "2": 42.6,
+        "3": 45.33,
+        "4": 30.85
+      },
+      "teamRuns": {
+        "1": 19878,
+        "2": 14659,
+        "3": 12900,
+        "4": 5373
+      }
+    },
+    "venueRuns": {
+      "home": 4356,
+      "away": 3758
+    },
+    "resultRuns": {
+      "win": 2950,
+      "draw": 4068,
+      "loss": 1096
+    }
+  },
+  {
+    "name": "GS Sobers",
+    "runs": 8032,
+    "avg": 57.78,
+    "sr": 48.75,
+    "pctTotal": 1.0,
+    "venue": "home",
+    "result": "draw",
+    "innings": {
+      "runs": {
+        "1": 2898,
+        "2": 2211,
+        "3": 2316,
+        "4": 607
+      },
+      "avg": {
+        "1": 57.96,
+        "2": 61.42,
+        "3": 53.86,
+        "4": 16.86
+      },
+      "teamRuns": {
+        "1": 19500,
+        "2": 13368,
+        "3": 14509,
+        "4": 4372
+      }
+    },
+    "venueRuns": {
+      "home": 4075,
+      "away": 3957
+    },
+    "resultRuns": {
+      "win": 3097,
+      "draw": 3661,
+      "loss": 1274
+    }
+  },
+  {
+    "name": "ME Waugh",
+    "runs": 8029,
+    "avg": 41.82,
+    "sr": 52.28,
+    "pctTotal": 1.0,
+    "venue": "home",
+    "result": "win",
+    "innings": {
+      "runs": {
+        "1": 3080,
+        "2": 2488,
+        "3": 1641,
+        "4": 820
+      },
+      "avg": {
+        "1": 43.38,
+        "2": 46.94,
+        "3": 31.56,
+        "4": 13.67
+      },
+      "teamRuns": {
+        "1": 27125,
+        "2": 20433,
+        "3": 14492,
+        "4": 6016
+      }
+    },
+    "venueRuns": {
+      "home": 4019,
+      "away": 4010
+    },
+    "resultRuns": {
+      "win": 4794,
+      "draw": 1785,
+      "loss": 1450
+    }
+  },
+  {
+    "name": "MA Atherton",
+    "runs": 7728,
+    "avg": 37.7,
+    "sr": 37.39,
+    "pctTotal": 1.0,
+    "venue": "home",
+    "result": "draw",
+    "innings": {
+      "runs": {
+        "1": 2329,
+        "2": 2129,
+        "3": 1895,
+        "4": 1375
+      },
+      "avg": {
+        "1": 40.86,
+        "2": 37.35,
+        "3": 32.12,
+        "4": 29.26
+      },
+      "teamRuns": {
+        "1": 16642,
+        "2": 17648,
+        "3": 13861,
+        "4": 7298
+      }
+    },
+    "venueRuns": {
+      "home": 4716,
+      "away": 3012
+    },
+    "resultRuns": {
+      "win": 2090,
+      "draw": 3319,
+      "loss": 2319
+    }
+  },
+  {
+    "name": "IR Bell",
+    "runs": 7727,
+    "avg": 42.69,
+    "sr": 49.46,
+    "pctTotal": 1.0,
+    "venue": "home",
+    "result": "win",
+    "innings": {
+      "runs": {
+        "1": 2623,
+        "2": 2592,
+        "3": 1572,
+        "4": 940
+      },
+      "avg": {
+        "1": 47.69,
+        "2": 48.91,
+        "3": 34.17,
+        "4": 16.49
+      },
+      "teamRuns": {
+        "1": 20711,
+        "2": 21454,
+        "3": 14609,
+        "4": 8460
+      }
+    },
+    "venueRuns": {
+      "home": 4450,
+      "away": 3277
+    },
+    "resultRuns": {
+      "win": 3531,
+      "draw": 2280,
+      "loss": 1916
+    }
+  },
+  {
+    "name": "JL Langer",
+    "runs": 7696,
+    "avg": 45.27,
+    "sr": 54.23,
+    "pctTotal": 1.0,
+    "venue": "home",
+    "result": "win",
+    "innings": {
+      "runs": {
+        "1": 3181,
+        "2": 1995,
+        "3": 1467,
+        "4": 1053
+      },
+      "avg": {
+        "1": 60.02,
+        "2": 40.71,
+        "3": 34.93,
+        "4": 20.25
+      },
+      "teamRuns": {
+        "1": 21887,
+        "2": 19876,
+        "3": 12114,
+        "4": 6013
+      }
+    },
+    "venueRuns": {
+      "home": 4428,
+      "away": 3268
+    },
+    "resultRuns": {
+      "win": 5229,
+      "draw": 1570,
+      "loss": 897
+    }
+  },
+  {
+    "name": "LRPL Taylor",
+    "runs": 7683,
+    "avg": 44.67,
+    "sr": 59.3,
+    "pctTotal": 1.0,
+    "venue": "home",
+    "result": "win",
+    "innings": {
+      "runs": {
+        "1": 2640,
+        "2": 2376,
+        "3": 1615,
+        "4": 1052
+      },
+      "avg": {
+        "1": 55.0,
+        "2": 43.2,
+        "3": 37.56,
+        "4": 19.85
+      },
+      "teamRuns": {
+        "1": 19054,
+        "2": 18623,
+        "3": 11952,
+        "4": 7841
+      }
+    },
+    "venueRuns": {
+      "home": 3905,
+      "away": 3778
+    },
+    "resultRuns": {
+      "win": 3272,
+      "draw": 1986,
+      "loss": 2425
+    }
+  },
+  {
+    "name": "MC Cowdrey",
+    "runs": 7624,
+    "avg": 44.07,
+    "sr": 40.96,
+    "pctTotal": 1.0,
+    "venue": "away",
+    "result": "draw",
+    "innings": {
+      "runs": {
+        "1": 2713,
+        "2": 2537,
+        "3": 1600,
+        "4": 774
+      },
+      "avg": {
+        "1": 43.76,
+        "2": 50.74,
+        "3": 38.1,
+        "4": 13.58
+      },
+      "teamRuns": {
+        "1": 21037,
+        "2": 15963,
+        "3": 11522,
+        "4": 5442
+      }
+    },
+    "venueRuns": {
+      "home": 3537,
+      "away": 4087
+    },
+    "resultRuns": {
+      "win": 3087,
+      "draw": 3357,
+      "loss": 1180
+    }
+  },
+  {
+    "name": "CG Greenidge",
+    "runs": 7558,
+    "avg": 44.72,
+    "sr": 51.19,
+    "pctTotal": 1.0,
+    "venue": "away",
+    "result": "win",
+    "innings": {
+      "runs": {
+        "1": 2455,
+        "2": 2180,
+        "3": 1540,
+        "4": 1383
+      },
+      "avg": {
+        "1": 50.1,
+        "2": 37.59,
+        "3": 40.53,
+        "4": 26.09
+      },
+      "teamRuns": {
+        "1": 16420,
+        "2": 20585,
+        "3": 11483,
+        "4": 5439
+      }
+    },
+    "venueRuns": {
+      "home": 3209,
+      "away": 4349
+    },
+    "resultRuns": {
+      "win": 4653,
+      "draw": 2471,
+      "loss": 434
+    }
+  },
+  {
+    "name": "Mohammad Yousuf",
+    "runs": 7530,
+    "avg": 52.29,
+    "sr": 52.4,
+    "pctTotal": 1.0,
+    "venue": "away",
+    "result": "win",
+    "innings": {
+      "runs": {
+        "1": 2060,
+        "2": 2983,
+        "3": 1670,
+        "4": 817
+      },
+      "avg": {
+        "1": 50.24,
+        "2": 67.8,
+        "3": 38.84,
+        "4": 22.08
+      },
+      "teamRuns": {
+        "1": 13112,
+        "2": 17191,
+        "3": 13140,
+        "4": 5386
+      }
+    },
+    "venueRuns": {
+      "home": 3067,
+      "away": 4463
+    },
+    "resultRuns": {
+      "win": 2789,
+      "draw": 2348,
+      "loss": 2393
+    }
+  },
+  {
+    "name": "MA Taylor",
+    "runs": 7525,
+    "avg": 43.5,
+    "sr": 41.61,
+    "pctTotal": 1.0,
+    "venue": "home",
+    "result": "win",
+    "innings": {
+      "runs": {
+        "1": 2732,
+        "2": 1652,
+        "3": 2260,
+        "4": 881
+      },
+      "avg": {
+        "1": 44.06,
+        "2": 42.36,
+        "3": 45.2,
+        "4": 20.98
+      },
+      "teamRuns": {
+        "1": 22953,
+        "2": 14762,
+        "3": 14357,
+        "4": 4278
+      }
+    },
+    "venueRuns": {
+      "home": 3993,
+      "away": 3532
+    },
+    "resultRuns": {
+      "win": 3812,
+      "draw": 2792,
+      "loss": 921
+    }
+  },
+  {
+    "name": "CH Lloyd",
+    "runs": 7515,
+    "avg": 46.68,
+    "sr": 54.68,
+    "pctTotal": 1.0,
+    "venue": "away",
+    "result": "win",
+    "innings": {
+      "runs": {
+        "1": 2080,
+        "2": 3111,
+        "3": 1651,
+        "4": 673
+      },
+      "avg": {
+        "1": 44.26,
+        "2": 53.64,
+        "3": 38.4,
+        "4": 12.02
+      },
+      "teamRuns": {
+        "1": 17522,
+        "2": 21190,
+        "3": 12250,
+        "4": 6700
+      }
+    },
+    "venueRuns": {
+      "home": 2881,
+      "away": 4634
+    },
+    "resultRuns": {
+      "win": 3337,
+      "draw": 2827,
+      "loss": 1351
+    }
+  },
+  {
+    "name": "DL Haynes",
+    "runs": 7487,
+    "avg": 42.3,
+    "sr": 45.49,
+    "pctTotal": 1.0,
+    "venue": "home",
+    "result": "win",
+    "innings": {
+      "runs": {
+        "1": 1593,
+        "2": 2864,
+        "3": 1938,
+        "4": 1092
+      },
+      "avg": {
+        "1": 32.51,
+        "2": 43.39,
+        "3": 52.38,
+        "4": 20.6
+      },
+      "teamRuns": {
+        "1": 15656,
+        "2": 22922,
+        "3": 10904,
+        "4": 5522
+      }
+    },
+    "venueRuns": {
+      "home": 3868,
+      "away": 3619
+    },
+    "resultRuns": {
+      "win": 4041,
+      "draw": 2381,
+      "loss": 1065
+    }
+  },
+  {
+    "name": "DC Boon",
+    "runs": 7422,
+    "avg": 43.66,
+    "sr": 40.97,
+    "pctTotal": 1.0,
+    "venue": "home",
+    "result": "draw",
+    "innings": {
+      "runs": {
+        "1": 2951,
+        "2": 1540,
+        "3": 2186,
+        "4": 745
+      },
+      "avg": {
+        "1": 46.84,
+        "2": 38.5,
+        "3": 46.51,
+        "4": 18.17
+      },
+      "teamRuns": {
+        "1": 23334,
+        "2": 14609,
+        "3": 14065,
+        "4": 4842
+      }
+    },
+    "venueRuns": {
+      "home": 4541,
+      "away": 2881
+    },
+    "resultRuns": {
+      "win": 3129,
+      "draw": 3172,
+      "loss": 1121
+    }
+  },
+  {
+    "name": "G Kirsten",
+    "runs": 7289,
+    "avg": 45.27,
+    "sr": 43.43,
+    "pctTotal": 0.9,
+    "venue": "away",
+    "result": "win",
+    "innings": {
+      "runs": {
+        "1": 2674,
+        "2": 1946,
+        "3": 1858,
+        "4": 811
+      },
+      "avg": {
+        "1": 51.42,
+        "2": 41.4,
+        "3": 43.21,
+        "4": 20.27
+      },
+      "teamRuns": {
+        "1": 20315,
+        "2": 15576,
+        "3": 11846,
+        "4": 4463
+      }
+    },
+    "venueRuns": {
+      "home": 3384,
+      "away": 3905
+    },
+    "resultRuns": {
+      "win": 3800,
+      "draw": 2498,
+      "loss": 991
+    }
+  },
+  {
+    "name": "WR Hammond",
+    "runs": 7249,
+    "avg": 58.46,
+    "sr": 44.71,
+    "pctTotal": 0.9,
+    "venue": "away",
+    "result": "draw",
+    "innings": {
+      "runs": {
+        "1": 2691,
+        "2": 2379,
+        "3": 1482,
+        "4": 697
+      },
+      "avg": {
+        "1": 62.58,
+        "2": 66.08,
+        "3": 46.31,
+        "4": 17.87
+      },
+      "teamRuns": {
+        "1": 17165,
+        "2": 12831,
+        "3": 9121,
+        "4": 4014
+      }
+    },
+    "venueRuns": {
+      "home": 3004,
+      "away": 4245
+    },
+    "resultRuns": {
+      "win": 2584,
+      "draw": 3614,
+      "loss": 1051
+    }
+  },
+  {
+    "name": "FDM Karunaratne",
+    "runs": 7222,
+    "avg": 39.25,
+    "sr": 51.5,
+    "pctTotal": 0.9,
+    "venue": "home",
+    "result": "win",
+    "innings": {
+      "runs": {
+        "1": 2350,
+        "2": 1623,
+        "3": 2075,
+        "4": 1174
+      },
+      "avg": {
+        "1": 47.96,
+        "2": 32.46,
+        "3": 37.73,
+        "4": 30.89
+      },
+      "teamRuns": {
+        "1": 16439,
+        "2": 14710,
+        "3": 14476,
+        "4": 7350
+      }
+    },
+    "venueRuns": {
+      "home": 3834,
+      "away": 3388
+    },
+    "resultRuns": {
+      "win": 3493,
+      "draw": 915,
+      "loss": 2814
+    }
+  },
+  {
+    "name": "BA Stokes",
+    "runs": 7216,
+    "avg": 34.86,
+    "sr": 58.44,
+    "pctTotal": 0.9,
+    "venue": "away",
+    "result": "win",
+    "innings": {
+      "runs": {
+        "1": 2664,
+        "2": 1633,
+        "3": 1720,
+        "4": 1199
+      },
+      "avg": {
+        "1": 40.98,
+        "2": 29.69,
+        "3": 30.71,
+        "4": 21.8
+      },
+      "teamRuns": {
+        "1": 21855,
+        "2": 16875,
+        "3": 15839,
+        "4": 10080
+      }
+    },
+    "venueRuns": {
+      "home": 3340,
+      "away": 3876
+    },
+    "resultRuns": {
+      "win": 3442,
+      "draw": 1311,
+      "loss": 2463
+    }
+  },
+  {
+    "name": "CH Gayle",
+    "runs": 7214,
+    "avg": 42.19,
+    "sr": 60.27,
+    "pctTotal": 0.9,
+    "venue": "away",
+    "result": "draw",
+    "innings": {
+      "runs": {
+        "1": 1358,
+        "2": 3192,
+        "3": 1274,
+        "4": 1390
+      },
+      "avg": {
+        "1": 39.94,
+        "2": 46.26,
+        "3": 35.39,
+        "4": 27.8
+      },
+      "teamRuns": {
+        "1": 11623,
+        "2": 23478,
+        "3": 8331,
+        "4": 8629
+      }
+    },
+    "venueRuns": {
+      "home": 3437,
+      "away": 3777
+    },
+    "resultRuns": {
+      "win": 1537,
+      "draw": 2990,
+      "loss": 2687
+    }
+  },
+  {
+    "name": "SC Ganguly",
+    "runs": 7212,
+    "avg": 42.18,
+    "sr": 51.26,
+    "pctTotal": 0.9,
+    "venue": "away",
+    "result": "draw",
+    "innings": {
+      "runs": {
+        "1": 2342,
+        "2": 2427,
+        "3": 1579,
+        "4": 864
+      },
+      "avg": {
+        "1": 45.92,
+        "2": 40.45,
+        "3": 39.48,
+        "4": 16.94
+      },
+      "teamRuns": {
+        "1": 19970,
+        "2": 21875,
+        "3": 12457,
+        "4": 6904
+      }
+    },
+    "venueRuns": {
+      "home": 3180,
+      "away": 4032
+    },
+    "resultRuns": {
+      "win": 2284,
+      "draw": 3275,
+      "loss": 1653
+    }
+  },
+  {
+    "name": "CA Pujara",
+    "runs": 7195,
+    "avg": 43.61,
+    "sr": 44.37,
+    "pctTotal": 0.9,
+    "venue": "home",
+    "result": "win",
+    "innings": {
+      "runs": {
+        "1": 2730,
+        "2": 1917,
+        "3": 1852,
+        "4": 696
+      },
+      "avg": {
+        "1": 49.64,
+        "2": 42.6,
+        "3": 42.09,
+        "4": 14.2
+      },
+      "teamRuns": {
+        "1": 20003,
+        "2": 17181,
+        "3": 11357,
+        "4": 5300
+      }
+    },
+    "venueRuns": {
+      "home": 3839,
+      "away": 3356
+    },
+    "resultRuns": {
+      "win": 4408,
+      "draw": 1343,
+      "loss": 1444
+    }
+  },
+  {
+    "name": "SP Fleming",
+    "runs": 7172,
+    "avg": 40.07,
+    "sr": 45.84,
+    "pctTotal": 0.9,
+    "venue": "away",
+    "result": "draw",
+    "innings": {
+      "runs": {
+        "1": 2980,
+        "2": 1881,
+        "3": 1602,
+        "4": 709
+      },
+      "avg": {
+        "1": 53.21,
+        "2": 36.17,
+        "3": 30.81,
+        "4": 15.09
+      },
+      "teamRuns": {
+        "1": 19752,
+        "2": 15060,
+        "3": 11997,
+        "4": 6387
+      }
+    },
+    "venueRuns": {
+      "home": 2947,
+      "away": 4225
+    },
+    "resultRuns": {
+      "win": 2145,
+      "draw": 2529,
+      "loss": 2498
+    }
+  },
+  {
+    "name": "Azhar Ali",
+    "runs": 7142,
+    "avg": 42.26,
+    "sr": 41.93,
+    "pctTotal": 0.9,
+    "venue": "away",
+    "result": "win",
+    "innings": {
+      "runs": {
+        "1": 2315,
+        "2": 2280,
+        "3": 1585,
+        "4": 962
+      },
+      "avg": {
+        "1": 56.46,
+        "2": 43.85,
+        "3": 38.66,
+        "4": 20.47
+      },
+      "teamRuns": {
+        "1": 13782,
+        "2": 17214,
+        "3": 10396,
+        "4": 8579
+      }
+    },
+    "venueRuns": {
+      "home": 715,
+      "away": 6427
+    },
+    "resultRuns": {
+      "win": 3269,
+      "draw": 1378,
+      "loss": 2495
+    }
+  },
+  {
+    "name": "GS Chappell",
+    "runs": 7110,
+    "avg": 53.86,
+    "sr": 51.08,
+    "pctTotal": 0.9,
+    "venue": "home",
+    "result": "win",
+    "innings": {
+      "runs": {
+        "1": 2413,
+        "2": 2378,
+        "3": 1631,
+        "4": 688
+      },
+      "avg": {
+        "1": 52.46,
+        "2": 64.27,
+        "3": 44.08,
+        "4": 20.85
+      },
+      "teamRuns": {
+        "1": 16740,
+        "2": 13055,
+        "3": 11543,
+        "4": 4682
+      }
+    },
+    "venueRuns": {
+      "home": 4515,
+      "away": 2595
+    },
+    "resultRuns": {
+      "win": 3595,
+      "draw": 2537,
+      "loss": 978
+    }
+  },
+  {
+    "name": "AJ Strauss",
+    "runs": 7037,
+    "avg": 40.91,
+    "sr": 48.92,
+    "pctTotal": 0.9,
+    "venue": "home",
+    "result": "win",
+    "innings": {
+      "runs": {
+        "1": 2448,
+        "2": 1946,
+        "3": 1638,
+        "4": 1005
+      },
+      "avg": {
+        "1": 45.33,
+        "2": 43.24,
+        "3": 39.0,
+        "4": 19.71
+      },
+      "teamRuns": {
+        "1": 21030,
+        "2": 16431,
+        "3": 12017,
+        "4": 6526
+      }
+    },
+    "venueRuns": {
+      "home": 4045,
+      "away": 2992
+    },
+    "resultRuns": {
+      "win": 3721,
+      "draw": 2004,
+      "loss": 1312
+    }
+  },
+  {
+    "name": "DG Bradman",
+    "runs": 6996,
+    "avg": 99.94,
+    "sr": 58.78,
+    "pctTotal": 0.9,
+    "venue": "home",
+    "result": "win",
+    "innings": {
+      "runs": {
+        "1": 2387,
+        "2": 2310,
+        "3": 1565,
+        "4": 734
+      },
+      "avg": {
+        "1": 113.67,
+        "2": 79.66,
+        "3": 120.38,
+        "4": 24.47
+      },
+      "teamRuns": {
+        "1": 9438,
+        "2": 10867,
+        "3": 5293,
+        "4": 3212
+      }
+    },
+    "venueRuns": {
+      "home": 4322,
+      "away": 2674
+    },
+    "resultRuns": {
+      "win": 4813,
+      "draw": 1231,
+      "loss": 952
+    }
+  },
+  {
+    "name": "ST Jayasuriya",
+    "runs": 6973,
+    "avg": 40.07,
+    "sr": 65.18,
+    "pctTotal": 0.9,
+    "venue": "home",
+    "result": "win",
+    "innings": {
+      "runs": {
+        "1": 1664,
+        "2": 2724,
+        "3": 1630,
+        "4": 955
+      },
+      "avg": {
+        "1": 32.63,
+        "2": 46.17,
+        "3": 37.91,
+        "4": 19.9
+      },
+      "teamRuns": {
+        "1": 15676,
+        "2": 20836,
+        "3": 11711,
+        "4": 6278
+      }
+    },
+    "venueRuns": {
+      "home": 4114,
+      "away": 2859
+    },
+    "resultRuns": {
+      "win": 2801,
+      "draw": 2380,
+      "loss": 1792
+    }
+  },
+  {
+    "name": "L Hutton",
+    "runs": 6971,
+    "avg": 56.67,
+    "sr": 39.73,
+    "pctTotal": 0.9,
+    "venue": "home",
+    "result": "win",
+    "innings": {
+      "runs": {
+        "1": 2232,
+        "2": 2673,
+        "3": 1113,
+        "4": 953
+      },
+      "avg": {
+        "1": 65.65,
+        "2": 65.2,
+        "3": 39.75,
+        "4": 25.08
+      },
+      "teamRuns": {
+        "1": 12690,
+        "2": 12850,
+        "3": 7766,
+        "4": 5134
+      }
+    },
+    "venueRuns": {
+      "home": 3930,
+      "away": 3041
+    },
+    "resultRuns": {
+      "win": 2678,
+      "draw": 2593,
+      "loss": 1700
+    }
+  },
+  {
+    "name": "DB Vengsarkar",
+    "runs": 6868,
+    "avg": 42.13,
+    "sr": 44.46,
+    "pctTotal": 0.9,
+    "venue": "home",
+    "result": "draw",
+    "innings": {
+      "runs": {
+        "1": 2195,
+        "2": 2424,
+        "3": 1636,
+        "4": 613
+      },
+      "avg": {
+        "1": 39.91,
+        "2": 45.74,
+        "3": 39.9,
+        "4": 12.51
+      },
+      "teamRuns": {
+        "1": 18814,
+        "2": 20227,
+        "3": 12139,
+        "4": 5295
+      }
+    },
+    "venueRuns": {
+      "home": 3725,
+      "away": 3143
+    },
+    "resultRuns": {
+      "win": 1187,
+      "draw": 4027,
+      "loss": 1654
+    }
+  },
+  {
+    "name": "KF Barrington",
+    "runs": 6806,
+    "avg": 58.67,
+    "sr": 42.17,
+    "pctTotal": 0.9,
+    "venue": "away",
+    "result": "draw",
+    "innings": {
+      "runs": {
+        "1": 2735,
+        "2": 2334,
+        "3": 1142,
+        "4": 595
+      },
+      "avg": {
+        "1": 70.13,
+        "2": 61.42,
+        "3": 45.68,
+        "4": 12.93
+      },
+      "teamRuns": {
+        "1": 15332,
+        "2": 13505,
+        "3": 7550,
+        "4": 4887
+      }
+    },
+    "venueRuns": {
+      "home": 3347,
+      "away": 3459
+    },
+    "resultRuns": {
+      "win": 2319,
+      "draw": 3755,
+      "loss": 732
+    }
+  },
+  {
+    "name": "GP Thorpe",
+    "runs": 6744,
+    "avg": 44.66,
+    "sr": 45.9,
+    "pctTotal": 0.9,
+    "venue": "away",
+    "result": "win",
+    "innings": {
+      "runs": {
+        "1": 1212,
+        "2": 2873,
+        "3": 1870,
+        "4": 789
+      },
+      "avg": {
+        "1": 28.86,
+        "2": 54.21,
+        "3": 55.0,
+        "4": 19.73
+      },
+      "teamRuns": {
+        "1": 12926,
+        "2": 18233,
+        "3": 12272,
+        "4": 7222
+      }
+    },
+    "venueRuns": {
+      "home": 3343,
+      "away": 3401
+    },
+    "resultRuns": {
+      "win": 3006,
+      "draw": 2087,
+      "loss": 1651
+    }
+  },
+  {
+    "name": "Mushfiqur Rahim",
+    "runs": 6510,
+    "avg": 38.75,
+    "sr": 48.52,
+    "pctTotal": 0.8,
+    "venue": "home",
+    "result": "loss",
+    "innings": {
+      "runs": {
+        "1": 2176,
+        "2": 2141,
+        "3": 1314,
+        "4": 879
+      },
+      "avg": {
+        "1": 47.3,
+        "2": 45.55,
+        "3": 24.79,
+        "4": 23.76
+      },
+      "teamRuns": {
+        "1": 14780,
+        "2": 14604,
+        "3": 12987,
+        "4": 6716
+      }
+    },
+    "venueRuns": {
+      "home": 3762,
+      "away": 2748
+    },
+    "resultRuns": {
+      "win": 1834,
+      "draw": 988,
+      "loss": 3688
+    }
+  },
+  {
+    "name": "BB McCullum",
+    "runs": 6453,
+    "avg": 38.64,
+    "sr": 64.6,
+    "pctTotal": 0.8,
+    "venue": "home",
+    "result": "loss",
+    "innings": {
+      "runs": {
+        "1": 2524,
+        "2": 1351,
+        "3": 1935,
+        "4": 643
+      },
+      "avg": {
+        "1": 45.89,
+        "2": 30.02,
+        "3": 37.94,
+        "4": 15.68
+      },
+      "teamRuns": {
+        "1": 19851,
+        "2": 13639,
+        "3": 12857,
+        "4": 6110
+      }
+    },
+    "venueRuns": {
+      "home": 3591,
+      "away": 2862
+    },
+    "resultRuns": {
+      "win": 2017,
+      "draw": 2043,
+      "loss": 2393
+    }
+  },
+  {
+    "name": "PA de Silva",
+    "runs": 6361,
+    "avg": 42.98,
+    "sr": 50.6,
+    "pctTotal": 0.8,
+    "venue": "home",
+    "result": "draw",
+    "innings": {
+      "runs": {
+        "1": 1664,
+        "2": 2264,
+        "3": 1692,
+        "4": 741
+      },
+      "avg": {
+        "1": 35.4,
+        "2": 51.45,
+        "3": 38.45,
+        "4": 23.9
+      },
+      "teamRuns": {
+        "1": 13680,
+        "2": 13072,
+        "3": 11348,
+        "4": 4723
+      }
+    },
+    "venueRuns": {
+      "home": 3290,
+      "away": 3071
+    },
+    "resultRuns": {
+      "win": 1467,
+      "draw": 3154,
+      "loss": 1740
+    }
+  },
+  {
+    "name": "LD Chandimal",
+    "runs": 6361,
+    "avg": 43.57,
+    "sr": 50.07,
+    "pctTotal": 0.8,
+    "venue": "away",
+    "result": "loss",
+    "innings": {
+      "runs": {
+        "1": 2257,
+        "2": 1862,
+        "3": 1674,
+        "4": 568
+      },
+      "avg": {
+        "1": 52.49,
+        "2": 45.41,
+        "3": 38.05,
+        "4": 15.78
+      },
+      "teamRuns": {
+        "1": 15148,
+        "2": 13122,
+        "3": 13953,
+        "4": 5761
+      }
+    },
+    "venueRuns": {
+      "home": 3126,
+      "away": 3235
+    },
+    "resultRuns": {
+      "win": 2516,
+      "draw": 1171,
+      "loss": 2674
+    }
+  },
+  {
+    "name": "TWM Latham",
+    "runs": 6261,
+    "avg": 39.63,
+    "sr": 47.93,
+    "pctTotal": 0.8,
+    "venue": "home",
+    "result": "win",
+    "innings": {
+      "runs": {
+        "1": 1727,
+        "2": 2245,
+        "3": 1597,
+        "4": 692
+      },
+      "avg": {
+        "1": 43.17,
+        "2": 44.9,
+        "3": 43.16,
+        "4": 14.42
+      },
+      "teamRuns": {
+        "1": 13886,
+        "2": 17434,
+        "3": 11821,
+        "4": 5941
+      }
+    },
+    "venueRuns": {
+      "home": 3460,
+      "away": 2801
+    },
+    "resultRuns": {
+      "win": 3309,
+      "draw": 1416,
+      "loss": 1536
+    }
+  },
+  {
+    "name": "MEK Hussey",
+    "runs": 6235,
+    "avg": 51.53,
+    "sr": 50.14,
+    "pctTotal": 0.8,
+    "venue": "home",
+    "result": "win",
+    "innings": {
+      "runs": {
+        "1": 2189,
+        "2": 1890,
+        "3": 1527,
+        "4": 629
+      },
+      "avg": {
+        "1": 50.91,
+        "2": 60.97,
+        "3": 41.27,
+        "4": 20.29
+      },
+      "teamRuns": {
+        "1": 16848,
+        "2": 13194,
+        "3": 12486,
+        "4": 4629
+      }
+    },
+    "venueRuns": {
+      "home": 3794,
+      "away": 2441
+    },
+    "resultRuns": {
+      "win": 3978,
+      "draw": 1422,
+      "loss": 835
+    }
+  },
+  {
+    "name": "UT Khawaja",
+    "runs": 6229,
+    "avg": 42.96,
+    "sr": 48.83,
+    "pctTotal": 0.8,
+    "venue": "home",
+    "result": "win",
+    "innings": {
+      "runs": {
+        "1": 2304,
+        "2": 1722,
+        "3": 1431,
+        "4": 772
+      },
+      "avg": {
+        "1": 53.58,
+        "2": 40.05,
+        "3": 39.75,
+        "4": 19.79
+      },
+      "teamRuns": {
+        "1": 16670,
+        "2": 13722,
+        "3": 9126,
+        "4": 6172
+      }
+    },
+    "venueRuns": {
+      "home": 3215,
+      "away": 3014
+    },
+    "resultRuns": {
+      "win": 3645,
+      "draw": 1446,
+      "loss": 1138
+    }
+  },
+  {
+    "name": "RB Kanhai",
+    "runs": 6227,
+    "avg": 47.53,
+    "sr": 46.62,
+    "pctTotal": 0.8,
+    "venue": "away",
+    "result": "draw",
+    "innings": {
+      "runs": {
+        "1": 2869,
+        "2": 1515,
+        "3": 1267,
+        "4": 576
+      },
+      "avg": {
+        "1": 65.2,
+        "2": 44.56,
+        "3": 32.49,
+        "4": 16.94
+      },
+      "teamRuns": {
+        "1": 15548,
+        "2": 13051,
+        "3": 11693,
+        "4": 3834
+      }
+    },
+    "venueRuns": {
+      "home": 3064,
+      "away": 3163
+    },
+    "resultRuns": {
+      "win": 2404,
+      "draw": 2483,
+      "loss": 1340
+    }
+  },
+  {
+    "name": "M Azharuddin",
+    "runs": 6215,
+    "avg": 45.04,
+    "sr": 57.7,
+    "pctTotal": 0.8,
+    "venue": "home",
+    "result": "draw",
+    "innings": {
+      "runs": {
+        "1": 2367,
+        "2": 2251,
+        "3": 987,
+        "4": 610
+      },
+      "avg": {
+        "1": 51.46,
+        "2": 45.02,
+        "3": 31.84,
+        "4": 12.2
+      },
+      "teamRuns": {
+        "1": 17667,
+        "2": 17579,
+        "3": 8297,
+        "4": 5250
+      }
+    },
+    "venueRuns": {
+      "home": 3412,
+      "away": 2803
+    },
+    "resultRuns": {
+      "win": 1609,
+      "draw": 3001,
+      "loss": 1605
+    }
+  },
+  {
+    "name": "HH Gibbs",
+    "runs": 6167,
+    "avg": 41.95,
+    "sr": 50.26,
+    "pctTotal": 0.8,
+    "venue": "away",
+    "result": "win",
+    "innings": {
+      "runs": {
+        "1": 2326,
+        "2": 2017,
+        "3": 1195,
+        "4": 629
+      },
+      "avg": {
+        "1": 48.46,
+        "2": 50.42,
+        "3": 27.79,
+        "4": 14.98
+      },
+      "teamRuns": {
+        "1": 18009,
+        "2": 15171,
+        "3": 11726,
+        "4": 4660
+      }
+    },
+    "venueRuns": {
+      "home": 3055,
+      "away": 3112
+    },
+    "resultRuns": {
+      "win": 2877,
+      "draw": 1597,
+      "loss": 1693
+    }
+  },
+  {
+    "name": "RN Harvey",
+    "runs": 6149,
+    "avg": 48.42,
+    "sr": 44.38,
+    "pctTotal": 0.8,
+    "venue": "away",
+    "result": "win",
+    "innings": {
+      "runs": {
+        "1": 2131,
+        "2": 2266,
+        "3": 895,
+        "4": 857
+      },
+      "avg": {
+        "1": 59.19,
+        "2": 53.95,
+        "3": 31.96,
+        "4": 20.4
+      },
+      "teamRuns": {
+        "1": 13296,
+        "2": 13825,
+        "3": 6314,
+        "4": 4578
+      }
+    },
+    "venueRuns": {
+      "home": 2806,
+      "away": 3343
+    },
+    "resultRuns": {
+      "win": 3253,
+      "draw": 1934,
+      "loss": 962
+    }
+  },
+  {
+    "name": "GR Viswanath",
+    "runs": 6080,
+    "avg": 41.93,
+    "sr": 44.6,
+    "pctTotal": 0.8,
+    "venue": "home",
+    "result": "draw",
+    "innings": {
+      "runs": {
+        "1": 1910,
+        "2": 1898,
+        "3": 1604,
+        "4": 668
+      },
+      "avg": {
+        "1": 42.44,
+        "2": 43.14,
+        "3": 38.19,
+        "4": 19.09
+      },
+      "teamRuns": {
+        "1": 13892,
+        "2": 14035,
+        "3": 11085,
+        "4": 4977
+      }
+    },
+    "venueRuns": {
+      "home": 3502,
+      "away": 2578
+    },
+    "resultRuns": {
+      "win": 1637,
+      "draw": 2960,
+      "loss": 1483
+    }
+  },
+  {
+    "name": "JM Bairstow",
+    "runs": 6042,
+    "avg": 36.4,
+    "sr": 59.07,
+    "pctTotal": 0.8,
+    "venue": "home",
+    "result": "win",
+    "innings": {
+      "runs": {
+        "1": 2332,
+        "2": 1594,
+        "3": 1273,
+        "4": 843
+      },
+      "avg": {
+        "1": 46.64,
+        "2": 33.91,
+        "3": 27.67,
+        "4": 19.16
+      },
+      "teamRuns": {
+        "1": 16215,
+        "2": 15103,
+        "3": 12837,
+        "4": 7732
+      }
+    },
+    "venueRuns": {
+      "home": 3465,
+      "away": 2577
+    },
+    "resultRuns": {
+      "win": 2754,
+      "draw": 1254,
+      "loss": 2034
+    }
+  },
+  {
+    "name": "KC Brathwaite",
+    "runs": 5950,
+    "avg": 32.51,
+    "sr": 40.83,
+    "pctTotal": 0.8,
+    "venue": "away",
+    "result": "loss",
+    "innings": {
+      "runs": {
+        "1": 1396,
+        "2": 2543,
+        "3": 1017,
+        "4": 994
+      },
+      "avg": {
+        "1": 42.3,
+        "2": 39.12,
+        "3": 24.8,
+        "4": 20.71
+      },
+      "teamRuns": {
+        "1": 9911,
+        "2": 16636,
+        "3": 8841,
+        "4": 8970
+      }
+    },
+    "venueRuns": {
+      "home": 2867,
+      "away": 3083
+    },
+    "resultRuns": {
+      "win": 2128,
+      "draw": 1426,
+      "loss": 2396
+    }
+  },
+  {
+    "name": "RB Richardson",
+    "runs": 5949,
+    "avg": 44.4,
+    "sr": 47.69,
+    "pctTotal": 0.8,
+    "venue": "home",
+    "result": "win",
+    "innings": {
+      "runs": {
+        "1": 1628,
+        "2": 2411,
+        "3": 1215,
+        "4": 695
+      },
+      "avg": {
+        "1": 44.0,
+        "2": 50.23,
+        "3": 39.19,
+        "4": 16.16
+      },
+      "teamRuns": {
+        "1": 11649,
+        "2": 16568,
+        "3": 8646,
+        "4": 4220
+      }
+    },
+    "venueRuns": {
+      "home": 3217,
+      "away": 2732
+    },
+    "resultRuns": {
+      "win": 3059,
+      "draw": 1857,
+      "loss": 1033
+    }
+  },
+  {
+    "name": "RR Sarwan",
+    "runs": 5842,
+    "avg": 40.01,
+    "sr": 46.79,
+    "pctTotal": 0.8,
+    "venue": "home",
+    "result": "loss",
+    "innings": {
+      "runs": {
+        "1": 901,
+        "2": 2642,
+        "3": 1058,
+        "4": 1241
+      },
+      "avg": {
+        "1": 33.37,
+        "2": 46.35,
+        "3": 33.06,
+        "4": 26.4
+      },
+      "teamRuns": {
+        "1": 9058,
+        "2": 19299,
+        "3": 7866,
+        "4": 8569
+      }
+    },
+    "venueRuns": {
+      "home": 3494,
+      "away": 2348
+    },
+    "resultRuns": {
+      "win": 1244,
+      "draw": 1978,
+      "loss": 2620
+    }
+  },
+  {
+    "name": "ME Trescothick",
+    "runs": 5820,
+    "avg": 43.76,
+    "sr": 54.47,
+    "pctTotal": 0.7,
+    "venue": "home",
+    "result": "win",
+    "innings": {
+      "runs": {
+        "1": 1619,
+        "2": 2192,
+        "3": 1336,
+        "4": 673
+      },
+      "avg": {
+        "1": 44.97,
+        "2": 54.8,
+        "3": 43.1,
+        "4": 19.23
+      },
+      "teamRuns": {
+        "1": 13230,
+        "2": 13721,
+        "3": 9227,
+        "4": 5141
+      }
+    },
+    "venueRuns": {
+      "home": 3472,
+      "away": 2348
+    },
+    "resultRuns": {
+      "win": 2851,
+      "draw": 1502,
+      "loss": 1467
+    }
+  },
+  {
+    "name": "DCS Compton",
+    "runs": 5807,
+    "avg": 50.06,
+    "sr": 40.83,
+    "pctTotal": 0.7,
+    "venue": "home",
+    "result": "draw",
+    "innings": {
+      "runs": {
+        "1": 1921,
+        "2": 1866,
+        "3": 1565,
+        "4": 455
+      },
+      "avg": {
+        "1": 54.89,
+        "2": 46.65,
+        "3": 65.21,
+        "4": 11.38
+      },
+      "teamRuns": {
+        "1": 12248,
+        "2": 12784,
+        "3": 8008,
+        "4": 4465
+      }
+    },
+    "venueRuns": {
+      "home": 3963,
+      "away": 1844
+    },
+    "resultRuns": {
+      "win": 1801,
+      "draw": 2605,
+      "loss": 1401
+    }
+  },
+  {
+    "name": "Saleem Malik",
+    "runs": 5768,
+    "avg": 43.7,
+    "sr": 49.22,
+    "pctTotal": 0.7,
+    "venue": "home",
+    "result": "draw",
+    "innings": {
+      "runs": {
+        "1": 1448,
+        "2": 2360,
+        "3": 1512,
+        "4": 448
+      },
+      "avg": {
+        "1": 38.11,
+        "2": 40.0,
+        "3": 58.15,
+        "4": 8.45
+      },
+      "teamRuns": {
+        "1": 14063,
+        "2": 20519,
+        "3": 9548,
+        "4": 4421
+      }
+    },
+    "venueRuns": {
+      "home": 2908,
+      "away": 2860
+    },
+    "resultRuns": {
+      "win": 1880,
+      "draw": 3041,
+      "loss": 847
+    }
+  },
+  {
+    "name": "N Hussain",
+    "runs": 5764,
+    "avg": 37.19,
+    "sr": 40.39,
+    "pctTotal": 0.7,
+    "venue": "away",
+    "result": "win",
+    "innings": {
+      "runs": {
+        "1": 1656,
+        "2": 1863,
+        "3": 1468,
+        "4": 777
+      },
+      "avg": {
+        "1": 38.51,
+        "2": 38.02,
+        "3": 34.95,
+        "4": 18.95
+      },
+      "teamRuns": {
+        "1": 13247,
+        "2": 15938,
+        "3": 12023,
+        "4": 5914
+      }
+    },
+    "venueRuns": {
+      "home": 2833,
+      "away": 2931
+    },
+    "resultRuns": {
+      "win": 2380,
+      "draw": 1487,
+      "loss": 1897
+    }
+  },
+  {
+    "name": "CL Hooper",
+    "runs": 5762,
+    "avg": 36.47,
+    "sr": 50.26,
+    "pctTotal": 0.7,
+    "venue": "away",
+    "result": "draw",
+    "innings": {
+      "runs": {
+        "1": 1791,
+        "2": 2214,
+        "3": 977,
+        "4": 780
+      },
+      "avg": {
+        "1": 44.77,
+        "2": 38.17,
+        "3": 26.41,
+        "4": 15.92
+      },
+      "teamRuns": {
+        "1": 12027,
+        "2": 18278,
+        "3": 10160,
+        "4": 7298
+      }
+    },
+    "venueRuns": {
+      "home": 2555,
+      "away": 3207
+    },
+    "resultRuns": {
+      "win": 1560,
+      "draw": 2257,
+      "loss": 1945
+    }
+  },
+  {
+    "name": "MP Vaughan",
+    "runs": 5719,
+    "avg": 41.44,
+    "sr": 51.14,
+    "pctTotal": 0.7,
+    "venue": "home",
+    "result": "win",
+    "innings": {
+      "runs": {
+        "1": 1771,
+        "2": 1615,
+        "3": 1527,
+        "4": 806
+      },
+      "avg": {
+        "1": 44.27,
+        "2": 39.39,
+        "3": 44.91,
+        "4": 20.15
+      },
+      "teamRuns": {
+        "1": 14719,
+        "2": 13139,
+        "3": 10947,
+        "4": 5376
+      }
+    },
+    "venueRuns": {
+      "home": 3271,
+      "away": 2448
+    },
+    "resultRuns": {
+      "win": 2285,
+      "draw": 2102,
+      "loss": 1332
+    }
+  },
+  {
+    "name": "AC Gilchrist",
+    "runs": 5570,
+    "avg": 47.61,
+    "sr": 81.96,
+    "pctTotal": 0.7,
+    "venue": "home",
+    "result": "win",
+    "innings": {
+      "runs": {
+        "1": 1824,
+        "2": 2501,
+        "3": 891,
+        "4": 354
+      },
+      "avg": {
+        "1": 43.43,
+        "2": 56.84,
+        "3": 27.84,
+        "4": 6.68
+      },
+      "teamRuns": {
+        "1": 20136,
+        "2": 19848,
+        "3": 10863,
+        "4": 6495
+      }
+    },
+    "venueRuns": {
+      "home": 2936,
+      "away": 2634
+    },
+    "resultRuns": {
+      "win": 4332,
+      "draw": 640,
+      "loss": 598
+    }
+  },
+  {
+    "name": "MV Boucher",
+    "runs": 5515,
+    "avg": 30.3,
+    "sr": 50.11,
+    "pctTotal": 0.7,
+    "venue": "home",
+    "result": "win",
+    "innings": {
+      "runs": {
+        "1": 2045,
+        "2": 1953,
+        "3": 1042,
+        "4": 475
+      },
+      "avg": {
+        "1": 31.46,
+        "2": 27.51,
+        "3": 18.61,
+        "4": 6.25
+      },
+      "teamRuns": {
+        "1": 27126,
+        "2": 26549,
+        "3": 16273,
+        "4": 8994
+      }
+    },
+    "venueRuns": {
+      "home": 3001,
+      "away": 2514
+    },
+    "resultRuns": {
+      "win": 2532,
+      "draw": 1356,
+      "loss": 1627
+    }
+  },
+  {
+    "name": "MS Atapattu",
+    "runs": 5502,
+    "avg": 39.02,
+    "sr": 44.37,
+    "pctTotal": 0.7,
+    "venue": "away",
+    "result": "win",
+    "innings": {
+      "runs": {
+        "1": 1742,
+        "2": 2302,
+        "3": 966,
+        "4": 492
+      },
+      "avg": {
+        "1": 48.39,
+        "2": 46.98,
+        "3": 29.27,
+        "4": 11.71
+      },
+      "teamRuns": {
+        "1": 12098,
+        "2": 18737,
+        "3": 8890,
+        "4": 5176
+      }
+    },
+    "venueRuns": {
+      "home": 2671,
+      "away": 2831
+    },
+    "resultRuns": {
+      "win": 2138,
+      "draw": 1712,
+      "loss": 1652
+    }
+  },
+  {
+    "name": "TM Dilshan",
+    "runs": 5492,
+    "avg": 40.99,
+    "sr": 65.54,
+    "pctTotal": 0.7,
+    "venue": "home",
+    "result": "win",
+    "innings": {
+      "runs": {
+        "1": 1933,
+        "2": 1744,
+        "3": 1297,
+        "4": 518
+      },
+      "avg": {
+        "1": 44.95,
+        "2": 44.72,
+        "3": 33.26,
+        "4": 13.28
+      },
+      "teamRuns": {
+        "1": 15696,
+        "2": 15258,
+        "3": 10697,
+        "4": 4832
+      }
+    },
+    "venueRuns": {
+      "home": 2925,
+      "away": 2567
+    },
+    "resultRuns": {
+      "win": 2212,
+      "draw": 1821,
+      "loss": 1459
+    }
+  },
+  {
+    "name": "TT Samaraweera",
+    "runs": 5462,
+    "avg": 48.77,
+    "sr": 46.92,
+    "pctTotal": 0.7,
+    "venue": "home",
+    "result": "win",
+    "innings": {
+      "runs": {
+        "1": 2472,
+        "2": 1344,
+        "3": 1261,
+        "4": 385
+      },
+      "avg": {
+        "1": 63.38,
+        "2": 38.4,
+        "3": 39.41,
+        "4": 11.67
+      },
+      "teamRuns": {
+        "1": 15161,
+        "2": 14299,
+        "3": 10913,
+        "4": 3892
+      }
+    },
+    "venueRuns": {
+      "home": 3123,
+      "away": 2339
+    },
+    "resultRuns": {
+      "win": 2461,
+      "draw": 1524,
+      "loss": 1477
+    }
+  },
+  {
+    "name": "MD Crowe",
+    "runs": 5444,
+    "avg": 45.37,
+    "sr": 44.66,
+    "pctTotal": 0.7,
+    "venue": "away",
+    "result": "draw",
+    "innings": {
+      "runs": {
+        "1": 1658,
+        "2": 1688,
+        "3": 1634,
+        "4": 464
+      },
+      "avg": {
+        "1": 47.37,
+        "2": 40.19,
+        "3": 44.16,
+        "4": 21.09
+      },
+      "teamRuns": {
+        "1": 10547,
+        "2": 11954,
+        "3": 9991,
+        "4": 3469
+      }
+    },
+    "venueRuns": {
+      "home": 2401,
+      "away": 3043
+    },
+    "resultRuns": {
+      "win": 1219,
+      "draw": 2983,
+      "loss": 1242
+    }
+  },
+  {
+    "name": "JB Hobbs",
+    "runs": 5410,
+    "avg": 56.95,
+    "sr": 48.19,
+    "pctTotal": 0.7,
+    "venue": "away",
+    "result": "win",
+    "innings": {
+      "runs": {
+        "1": 1247,
+        "2": 2503,
+        "3": 681,
+        "4": 979
+      },
+      "avg": {
+        "1": 56.68,
+        "2": 65.87,
+        "3": 35.84,
+        "4": 32.63
+      },
+      "teamRuns": {
+        "1": 7365,
+        "2": 12844,
+        "3": 4945,
+        "4": 5057
+      }
+    },
+    "venueRuns": {
+      "home": 1935,
+      "away": 3475
+    },
+    "resultRuns": {
+      "win": 2720,
+      "draw": 801,
+      "loss": 1889
+    }
+  },
+  {
+    "name": "KD Walters",
+    "runs": 5357,
+    "avg": 48.26,
+    "sr": 47.56,
+    "pctTotal": 0.7,
+    "venue": "home",
+    "result": "win",
+    "innings": {
+      "runs": {
+        "1": 2271,
+        "2": 1576,
+        "3": 1191,
+        "4": 319
+      },
+      "avg": {
+        "1": 64.89,
+        "2": 42.59,
+        "3": 42.54,
+        "4": 9.38
+      },
+      "teamRuns": {
+        "1": 13328,
+        "2": 11520,
+        "3": 9460,
+        "4": 4138
+      }
+    },
+    "venueRuns": {
+      "home": 3065,
+      "away": 2292
+    },
+    "resultRuns": {
+      "win": 2303,
+      "draw": 2205,
+      "loss": 849
+    }
+  },
+  {
+    "name": "D Elgar",
+    "runs": 5347,
+    "avg": 37.92,
+    "sr": 47.78,
+    "pctTotal": 0.7,
+    "venue": "home",
+    "result": "win",
+    "innings": {
+      "runs": {
+        "1": 2029,
+        "2": 1408,
+        "3": 1041,
+        "4": 869
+      },
+      "avg": {
+        "1": 47.19,
+        "2": 35.2,
+        "3": 27.39,
+        "4": 24.14
+      },
+      "teamRuns": {
+        "1": 14259,
+        "2": 11445,
+        "3": 9286,
+        "4": 4875
+      }
+    },
+    "venueRuns": {
+      "home": 3479,
+      "away": 1868
+    },
+    "resultRuns": {
+      "win": 3276,
+      "draw": 575,
+      "loss": 1496
+    }
+  },
+  {
+    "name": "IM Chappell",
+    "runs": 5345,
+    "avg": 42.42,
+    "sr": 44.74,
+    "pctTotal": 0.7,
+    "venue": "home",
+    "result": "win",
+    "innings": {
+      "runs": {
+        "1": 1783,
+        "2": 1852,
+        "3": 968,
+        "4": 742
+      },
+      "avg": {
+        "1": 50.94,
+        "2": 46.3,
+        "3": 33.38,
+        "4": 20.61
+      },
+      "teamRuns": {
+        "1": 12452,
+        "2": 13087,
+        "3": 8976,
+        "4": 5388
+      }
+    },
+    "venueRuns": {
+      "home": 2721,
+      "away": 2624
+    },
+    "resultRuns": {
+      "win": 2379,
+      "draw": 2036,
+      "loss": 930
+    }
+  },
+  {
+    "name": "JG Wright",
+    "runs": 5334,
+    "avg": 37.83,
+    "sr": 35.57,
+    "pctTotal": 0.7,
+    "venue": "home",
+    "result": "draw",
+    "innings": {
+      "runs": {
+        "1": 1464,
+        "2": 1689,
+        "3": 1447,
+        "4": 734
+      },
+      "avg": {
+        "1": 40.67,
+        "2": 37.53,
+        "3": 40.19,
+        "4": 20.39
+      },
+      "teamRuns": {
+        "1": 10775,
+        "2": 13491,
+        "3": 9224,
+        "4": 4021
+      }
+    },
+    "venueRuns": {
+      "home": 3140,
+      "away": 2194
+    },
+    "resultRuns": {
+      "win": 1253,
+      "draw": 2716,
+      "loss": 1365
+    }
+  },
+  {
+    "name": "MJ Slater",
+    "runs": 5312,
+    "avg": 42.84,
+    "sr": 53.3,
+    "pctTotal": 0.7,
+    "venue": "home",
+    "result": "win",
+    "innings": {
+      "runs": {
+        "1": 1728,
+        "2": 1791,
+        "3": 1162,
+        "4": 631
+      },
+      "avg": {
+        "1": 44.31,
+        "2": 51.17,
+        "3": 38.73,
+        "4": 18.03
+      },
+      "teamRuns": {
+        "1": 14684,
+        "2": 13472,
+        "3": 7448,
+        "4": 3937
+      }
+    },
+    "venueRuns": {
+      "home": 2842,
+      "away": 2470
+    },
+    "resultRuns": {
+      "win": 3508,
+      "draw": 1094,
+      "loss": 710
+    }
+  },
+  {
+    "name": "Kapil Dev",
+    "runs": 5248,
+    "avg": 31.05,
+    "sr": 71.25,
+    "pctTotal": 0.7,
+    "venue": "home",
+    "result": "draw",
+    "innings": {
+      "runs": {
+        "1": 2087,
+        "2": 1882,
+        "3": 1003,
+        "4": 276
+      },
+      "avg": {
+        "1": 34.78,
+        "2": 29.87,
+        "3": 20.9,
+        "4": 4.45
+      },
+      "teamRuns": {
+        "1": 22129,
+        "2": 22595,
+        "3": 13104,
+        "4": 5554
+      }
+    },
+    "venueRuns": {
+      "home": 2810,
+      "away": 2438
+    },
+    "resultRuns": {
+      "win": 904,
+      "draw": 2768,
+      "loss": 1576
+    }
+  },
+  {
+    "name": "WM Lawry",
+    "runs": 5234,
+    "avg": 47.15,
+    "sr": 41.69,
+    "pctTotal": 0.7,
+    "venue": "home",
+    "result": "draw",
+    "innings": {
+      "runs": {
+        "1": 1494,
+        "2": 1777,
+        "3": 1282,
+        "4": 681
+      },
+      "avg": {
+        "1": 51.52,
+        "2": 48.03,
+        "3": 49.31,
+        "4": 22.7
+      },
+      "teamRuns": {
+        "1": 10224,
+        "2": 12860,
+        "3": 7846,
+        "4": 4022
+      }
+    },
+    "venueRuns": {
+      "home": 2818,
+      "away": 2416
+    },
+    "resultRuns": {
+      "win": 1853,
+      "draw": 2171,
+      "loss": 1210
+    }
+  }
+];
+function calculatePoints(player) {
+  let points = 0;
+  
+  // Strike Rate - uses total directly (no subs)
+  if (config.sr.total > 0) {
+    points += player.sr * (config.sr.total / 100);
+  }
+  
+  // Batting Average - each innings avg * innings weight (weight as decimal)
+  // e.g., avg=60, weight=3 -> 60 * 0.03 = 1.8 points
+  if (config.avg.total > 0) {
+    ['1', '2', '3', '4'].forEach(inn => {
+      const weight = config.avg.subs[inn];
+      if (weight > 0) {
+        points += player.innings.avg[inn] * (weight / 100);
+      }
+    });
+  }
+  
+  // Runs Scored - each innings runs * innings weight (weight as decimal)
+  if (config.runs.total > 0) {
+    ['1', '2', '3', '4'].forEach(inn => {
+      const weight = config.runs.subs[inn];
+      if (weight > 0) {
+        points += player.innings.runs[inn] * (weight / 100);
+      }
+    });
+  }
+  
+  // Impact - (player innings runs / team innings runs) * innings weight
+  // e.g., player runs=6150, team runs=48500, weight=10 -> (6150/48500) * 0.10 = 0.0127 * 100 = 1.27 points
+  // Multiply by 100 to get reasonable point values
+  if (config.impact.total > 0) {
+    ['1', '2', '3', '4'].forEach(inn => {
+      const weight = config.impact.subs[inn];
+      if (weight > 0 && player.innings.teamRuns[inn] > 0) {
+        const impactRatio = player.innings.runs[inn] / player.innings.teamRuns[inn];
+        points += impactRatio * (weight / 100) * 100;
+      }
+    });
+  }
+  
+  // Home/Away - runs at each venue * venue weight
+  // e.g., home runs=8472, home weight=5 -> 8472 * 0.05 = 423.6 points
+  if (config.ha.total > 0) {
+    ['home', 'away'].forEach(venue => {
+      const weight = config.ha.subs[venue];
+      if (weight > 0) {
+        points += player.venueRuns[venue] * (weight / 100);
+      }
+    });
+  }
+  
+  // Match Result - runs in each result * result weight
+  // e.g., win runs=8934, win weight=10 -> 8934 * 0.10 = 893.4 points
+  // Tie is combined into draw
+  if (config.result.total > 0) {
+    ['win', 'draw', 'loss'].forEach(result => {
+      const weight = config.result.subs[result];
+      if (weight > 0) {
+        points += player.resultRuns[result] * (weight / 100);
+      }
+    });
+  }
+  
+  return points;
+}
+
+function updateResultsTable() {
+  const tbody = document.getElementById('resultsBody');
+  const grandTotal = Object.values(config).reduce((sum, cfg) => sum + cfg.total, 0);
+  const filterValue = document.getElementById('playerFilter').value;
+  
+  // Calculate points for all players
+  const allPlayersWithPoints = playerData.map(player => ({
+    ...player,
+    points: calculatePoints(player)
+  }));
+  
+  // Sort by points descending
+  allPlayersWithPoints.sort((a, b) => b.points - a.points);
+  
+  // Filter based on dropdown
+  const limit = filterValue === 'all' ? allPlayersWithPoints.length : parseInt(filterValue);
+  const playersWithPoints = allPlayersWithPoints.slice(0, limit);
+  
+  // Calculate total points
+  const totalPts = playersWithPoints.reduce((sum, p) => sum + p.points, 0);
+  document.getElementById('totalPoints').textContent = totalPts.toFixed(1);
+  document.getElementById('playerCount').textContent = playersWithPoints.length;
+  
+  // Render table rows
+  tbody.innerHTML = playersWithPoints.map((player, index) => `
+    <tr>
+      <td class="player-name">${player.name}</td>
+      <td class="num points">${grandTotal > 0 ? player.points.toFixed(1) : '—'}</td>
+      <td class="num">${index + 1}</td>
+    </tr>
+  `).join('');
+}
+
 // Initialize
 updateGrandTotal();
+updateResultsTable();
 
 // Share functionality
 function sharePage(){
